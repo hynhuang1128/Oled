@@ -156,6 +156,12 @@ void setup(void)
   /* Key process initialize */
   hw_keyInit();
   
+  /* Clock initialize */
+  hw_clockInit();
+  
+  /* Dma initialize */
+  dmaInit();
+  
   /* Image initialize */
   image_t qrcode =
   {
@@ -171,9 +177,6 @@ void setup(void)
   LCD_fill(FULL);
   LCD_clr();
   //LCD_pDraw(&qrcode);
-  
-  /* Clock initialize */
-  hw_clockInit();
   
   /* Timer 3 initialize */
   hw_timer3Cfg();
@@ -203,8 +206,35 @@ void loop(void)
  ===========*/
 void main()
 {
+  uint16 crc[2];
+  uint16 crc_out[2];
+  uint8 buf[5];
+  
   /* setup for the program */
   setup();
+  
+  /* test */
+  crc[0] = 0x1234;
+  crc[1] = 0x5678;
+  hw_flashErase(0x40);
+  hw_flashWrite( 0x8001, (uint8 *)crc, sizeof(crc) );
+  hw_flashRead( 0x40,
+                0x0006,
+                (uint8 *)crc_out, sizeof(crc) );
+  buf[0] = (uint8)((crc_out[0] >> 12) & 0x0f) + 0x30;
+  buf[1] = (uint8)((crc_out[0] >> 8) & 0x0f) + 0x30;
+  buf[2] = (uint8)((crc_out[0] >> 4) & 0x0f) + 0x30;
+  buf[3] = (uint8)(crc_out[0] & 0x0f) + 0x30;
+  buf[4] = '\0';
+  if(crc_out[0] == crc[0] && crc_out[1] ==  crc[1])
+  {
+    LCD_pTinyStr(0, 3, buf);
+  }
+  else
+  {
+    LCD_pTinyStr(0, 3, buf);   
+  }
+  
   
   /* doing the loop */
   while(1)

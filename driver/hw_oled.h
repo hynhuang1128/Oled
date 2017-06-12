@@ -54,9 +54,9 @@ typedef struct imageInfo
   uint8 *BMP;
 } image_t;
 
-/*================
+/*======================
  * FUNCTION DECLARATION
- =================*/
+ =======================*/
 void LCD_setPos(uint8 x, uint8 y);
 void LCD_fill(uint8 bmp_dat);
 void LCD_clr(void);

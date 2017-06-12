@@ -9,6 +9,7 @@
 #include "hw_timer.h"
 #include "hw_uart.h"
 #include "hw_pesk.h"
+#include "hw_flash.h"
    
 /*==========
  *  MACROS
@@ -31,6 +32,19 @@
 #define PERIOD_KEY_POLL         25
 #define PERIOD_CMD_POLL         25
    
+/* Cache Prefetch Control */
+#define PREFETCH_ENABLE()       \
+do                              \
+{                               \
+  FCTL = 0x08;                  \
+} while(0)
+
+#define PREFETCH_DISABLE()      \
+do                              \
+{                               \
+  FCTL = 0x04;                  \
+} while(0)
+
 /*=============
  * TYPE DEFINES
  ==============*/
