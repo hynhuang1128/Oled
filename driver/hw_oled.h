@@ -23,11 +23,11 @@
 /* port initialize definitions */
 // set P1.2 P1.5 P1.6 P1.7 to GPIO
 // set P1.2 P1.5 P1.6 P1.7 output
-#define LCD_INIT_PORT() \
-do \
-{  \
-  P1SEL &= 0x1b; \
-  P1DIR |= 0xe4; \
+#define LCD_INIT_PORT()                 \
+do                                      \
+{                                       \
+  P1SEL &= 0x1b;                        \
+  P1DIR |= 0xe4;                        \
 } while(0)
 
 /* OLED definitions */

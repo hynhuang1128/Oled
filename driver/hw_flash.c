@@ -12,8 +12,6 @@
  *
  * @brief       This function reads 'cnt' bytes from the internal flash.
  *
- * input parameters
- *
  * @param       pg - A valid flash page number.
  * @param       offset - A valid offset into the page.
  * @param       buf - A valid buffer space at least as big as the 'cnt' parameter.
@@ -50,8 +48,6 @@ void hw_flashRead(uint8 pg, uint16 offset, uint8 *buf, uint16 cnt)
  * @fn          hw_flashWrite
  *
  * @brief       This function writes 'cnt' bytes to the internal flash.
- *
- * input parameters
  *
  * @param       addr - Valid HAL flash write address: actual addr / 4 and quad-aligned.
  * @param       buf - Valid buffer space at least as big as 'cnt' X 4.
@@ -95,8 +91,6 @@ void hw_flashWrite(uint16 addr, uint8 *buf, uint16 cnt)
  *
  * @brief       This function erases the specified page of the internal flash.
  *
- * input parameters
- *
  * @param       pg - A valid flash page number to erase.
  *
  * output parameters
@@ -110,4 +104,23 @@ void hw_flashErase(uint8 pg)
 {
   FADDRH = pg * (FLASH_PAGE_SIZE / FLASH_WORD_SIZE / 256);
   FCTL |= 0x01;
+  while (FCTL & 0x80);
+}
+
+/*********************************************************************
+ * @fn      hw_checkVdd
+ *
+ * @brief   Check for minimum Vdd specified.
+ *
+ * @param   vdd - The board-specific Vdd reading to check for.
+ *
+ * @return  TRUE if the Vdd measured is greater than the 'vdd' minimum parameter;
+ *          FALSE if not.
+ *
+ *********************************************************************/
+bool hw_checkVdd(uint8 vdd)
+{
+  ADCCON3 = 0x0F;
+  while (!(ADCCON1 & 0x80));
+  return (ADCH > vdd);
 }

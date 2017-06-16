@@ -20,7 +20,7 @@
 // SNV can use a larger logical page size to accomodate more or bigger items or extend lifetime.
 #define FLASH_PAGE_SIZE            FLASH_PAGE_PHYS
 #define FLASH_WORD_SIZE            4
-
+   
 // CODE banks get mapped into the XDATA range 8000-FFFF.
 #define FLASH_PAGE_MAP             0x8000
 

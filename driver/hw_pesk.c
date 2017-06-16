@@ -125,7 +125,6 @@ void hw_keyPoll(void)
       peskCommand.input = key;
     }
   }
-  hw_cmdCall();
   
 #if (defined DEBUG) && (defined DEBUG_KEY)
   uint8 buf[5];

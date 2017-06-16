@@ -10,6 +10,7 @@
 #include "hw_uart.h"
 #include "hw_pesk.h"
 #include "hw_flash.h"
+#include "api_nv.h"
    
 /*==========
  *  MACROS

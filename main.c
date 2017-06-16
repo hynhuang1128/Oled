@@ -6,9 +6,9 @@
  *
  * date			- 2017.5.26
  *
- * author			- Eric Huang
+ * author		- Eric Huang
  *
- * email                   - eric.huang@9-a-m.com
+ * email                - eric.huang@9-a-m.com
  *
  ============================================*/
    
@@ -206,35 +206,40 @@ void loop(void)
  ===========*/
 void main()
 {
-  uint16 crc[2];
-  uint16 crc_out[2];
-  uint8 buf[5];
+  uint8 crc[4] = { 0x12, 0x56, 0x34, 0x99 };
+  uint8 out[4];
   
   /* setup for the program */
   setup();
   
   /* test */
-  crc[0] = 0x1234;
-  crc[1] = 0x5678;
-  hw_flashErase(0x40);
-  hw_flashWrite( 0x8001, (uint8 *)crc, sizeof(crc) );
-  hw_flashRead( 0x40,
-                0x0006,
-                (uint8 *)crc_out, sizeof(crc) );
-  buf[0] = (uint8)((crc_out[0] >> 12) & 0x0f) + 0x30;
-  buf[1] = (uint8)((crc_out[0] >> 8) & 0x0f) + 0x30;
-  buf[2] = (uint8)((crc_out[0] >> 4) & 0x0f) + 0x30;
-  buf[3] = (uint8)(crc_out[0] & 0x0f) + 0x30;
-  buf[4] = '\0';
-  if(crc_out[0] == crc[0] && crc_out[1] ==  crc[1])
+  if(api_nv_write(0x49, crc, 4))
   {
-    LCD_pTinyStr(0, 3, buf);
+    LCD_pTinyStr(0, 3, "flash write success!");
   }
   else
   {
-    LCD_pTinyStr(0, 3, buf);   
+    LCD_pTinyStr(0, 3, "flash write failed!");
   }
   
+  crc[0] = 0x22;
+  if(api_nv_write(0x49, crc, 4))
+  {
+    LCD_pTinyStr(0, 4, "flash write success!");
+  }
+  else
+  {
+    LCD_pTinyStr(0, 4, "flash write failed!");
+  }
+  
+  if(api_nv_read(0x00, out, 4))
+  {
+    LCD_pTinyStr(0, 5, "flash read success!");
+  }
+  else
+  {
+    LCD_pTinyStr(0, 5, "flash read failed!");
+  }
   
   /* doing the loop */
   while(1)
