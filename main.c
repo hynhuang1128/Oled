@@ -73,7 +73,7 @@ peskData_t peskData =
 /* Pesk commands */
 peskCommand_t peskCommand =
 {
-  KEY_IDLE,
+  KEY_IDLE, 
   CMD_STOP,
 };
 
@@ -206,40 +206,10 @@ void loop(void)
  ===========*/
 void main()
 {
-  uint8 crc[4] = { 0x12, 0x56, 0x34, 0x99 };
-  uint8 out[4];
-  
   /* setup for the program */
   setup();
   
   /* test */
-  if(api_nv_write(0x49, crc, 4))
-  {
-    LCD_pTinyStr(0, 3, "flash write success!");
-  }
-  else
-  {
-    LCD_pTinyStr(0, 3, "flash write failed!");
-  }
-  
-  crc[0] = 0x22;
-  if(api_nv_write(0x49, crc, 4))
-  {
-    LCD_pTinyStr(0, 4, "flash write success!");
-  }
-  else
-  {
-    LCD_pTinyStr(0, 4, "flash write failed!");
-  }
-  
-  if(api_nv_read(0x00, out, 4))
-  {
-    LCD_pTinyStr(0, 5, "flash read success!");
-  }
-  else
-  {
-    LCD_pTinyStr(0, 5, "flash read failed!");
-  }
   
   /* doing the loop */
   while(1)

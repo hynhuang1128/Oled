@@ -51,7 +51,7 @@ typedef struct imageInfo
   uint8 y0;
   uint8 x1;
   uint8 y1;
-  uint8 *BMP;
+  const uint8 *BMP;
 } image_t;
 
 /*======================
