@@ -17,10 +17,18 @@
  ===========*/
 #include "main.h"
    
+/*===================
+ * EXTERNAL VARIBLES
+ ====================*/
+extern rtc_t realTimer;
+   
 /*=================
  * GLOBAL VARIBLES
  ==================*/
 
+/* Lasting time */
+rtc_t lastingTime;
+   
 /* Uart data 0 */
 uartData_t uartData0 =
 {
@@ -66,8 +74,11 @@ uartConfig_t uart0Config =
 peskData_t peskData =
 {
   0,
+  0,
+  0,
   NORMAL,
   0,
+  IDLE,
 };
 
 /* Pesk commands */
@@ -102,50 +113,107 @@ static void performPeriodic(uint32 time, periodCBack_t cb)
  ============*/
 void cb_dataHandler(uint8 port, uint8 *data)
 {
-  // TODO complete the data callback function
-  peskData.status = data[1];
-  peskData.info_L = data[3];
-  peskData.info_H = data[2];
-  
-#if (defined DEBUG) && (defined DEBUG_STATUS)
-  switch(peskData.status)
+  if ( (data[0] == 0x01) && (data[1] == 0x01) && (data[2] == 0x01) || 
+       (data[0] == 0x01) && (data[1] == 0x01) && (data[2] == 0x00) && (data[3] != 0x00) )
   {
-    case NORMAL:
-      LCD_pNormalStr(0, 0, "pesk in normal");
-      break;
-      
-    case ERROR:
-      LCD_pTinyStr(0, 0, "PESK IN ERROR ");
-      break;
-      
-    case RST:
-      LCD_pTinyStr(0, 0, "PESK IN RESET ");
-      break;
-      
-    case SAVE:
-      LCD_pTinyStr(0, 0, "PESK IN SAVE  ");
-      break;
-      
-    default:
-      
-      break;
+    // keep the information unchanged
   }
-#endif
+  else if (data[0] == 0x01)
+  {
+    peskData.status = data[1];
+    peskData.info_L = data[3];
+    peskData.info_H = data[2];
+  }
+  else
+  {
+    // do nothing
+  }
   
-  if(NORMAL == peskData.status)
+  static int16 heightDiffer;
+  static int16 previousHeight;
+  static uint32 delayCount;
+  static uint32 idleTimerStart;
+  
+  static bool firstTimeIdle;
+  
+  /* validate the height informations */
+  if (NORMAL == peskData.status)
   {
     peskData.height = peskData.info;
-#if (defined DEBUG) && (defined DEBUG_STATUS)
-    uint8 buf[5];
-    buf[3] = peskData.height % 10 + 0x30;
-    buf[2] = peskData.height / 10 % 10 + 0x30;
-    buf[1] = peskData.height / 100 % 10 + 0x30;
-    buf[0] = peskData.height / 1000 % 10 + 0x30;
-    buf[4] = '\0';
-    LCD_pTinyStr(0, 1, buf);
-#endif
+    if (peskData.height != previousHeight)
+    {
+      heightDiffer = ((int16)peskData.height - previousHeight);
+      if (ABS(heightDiffer) < HEIGHTDIFFER_MAX
+          && previousHeight != 0)
+      {
+        peskData.currentHeight = peskData.height;
+      }
+      else if (0 == previousHeight)
+      {
+        peskData.currentHeight = peskData.height;
+      }
+      else
+      {
+        // do nothing
+      }
+      previousHeight = peskData.height;
+    }
+  }
+  else if (ERROR == peskData.status)
+  {
+    // TODO
+  }
+  else if (RST == peskData.status)
+  {
+    // TODO
+  }
+  else if (SAVE == peskData.status)
+  {
+    // TODO
+  }
+  else
+  {
+    // do nothing
   }
   
+  /* filter the direction informations */
+  if (delayCount > STATUS_DELAY_COUNT(100) && NORMAL == peskData.status)
+  {
+    if (peskData.currentHeight != peskData.previousHeight)
+    {
+      if (peskData.currentHeight > peskData.previousHeight)
+      {
+        peskData.moveDir = UP;
+      }
+      else if (peskData.currentHeight < peskData.previousHeight)
+      {
+        peskData.moveDir = DOWN;
+      }
+      peskData.previousHeight = peskData.currentHeight; 
+      firstTimeIdle = true;
+    }
+    else
+    {
+      if (firstTimeIdle)
+      {
+        peskData.moveDir = IDLE;
+        firstTimeIdle = false;
+        idleTimerStart = realTimer.realSecs;
+        lastingTime.realSecs = 0;
+      }
+      else
+      {
+        peskData.moveDir = IDLE;
+        lastingTime.realSecs = realTimer.realSecs - idleTimerStart;
+      }
+    }
+    delayCount = 0;
+  }
+  
+  /* get the lasting time */
+  lastingTime = hw_timerConvert(lastingTime.realSecs);
+  
+  delayCount++;
 }
 
 /*=========
@@ -163,20 +231,20 @@ void setup(void)
   dmaInit();
   
   /* Image initialize */
-  image_t qrcode =
+  image_t logo =
   {
-    QRCODE_X_BEGIN,
-    QRCODE_Y_BEGIN,
-    QRCODE_X_END,
-    QRCODE_Y_END,
-    QRCode,
+    IMAGE_X_BEGIN,
+    IMAGE_Y_BEGIN,
+    IMAGE_X_END,
+    IMAGE_Y_END,
+    logoDisp,
   };
   
   /* LCD initialize */
   LCD_init();
   LCD_fill(FULL);
   LCD_clr();
-  //LCD_pDraw(&qrcode);
+  LCD_pDraw(&logo);
   
   /* Timer 3 initialize */
   hw_timer3Cfg();
@@ -184,6 +252,9 @@ void setup(void)
   /* Uart 0 initialize */
   hw_uartInit(uart0Config);
   
+  /* delay for 500 ms */
+  hw_delayMs(1500);
+  LCD_clr();
 }
 
 /*==========
@@ -195,10 +266,10 @@ void loop(void)
   performPeriodic(PERIOD_UART0_POLL, hw_uartPoll);
   
   /* Key press process poll */
-  performPeriodic(PERIOD_KEY_POLL, hw_keyPoll);
+  performPeriodic(PERIOD_KEY_POLL, api_keyPoll);
   
-  /* Key command process poll */
-  performPeriodic(PERIOD_CMD_POLL, hw_cmdCall);
+  /* Display process poll */
+  performPeriodic(PERIOD_DISPLAY, displayScene);
 }
 
 /*==========
@@ -208,9 +279,7 @@ void main()
 {
   /* setup for the program */
   setup();
-  
-  /* test */
-  
+
   /* doing the loop */
   while(1)
   {

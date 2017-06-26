@@ -4,6 +4,8 @@
 /*========
  * MACROS
  =========*/
+#define ABS(x)                          ( (x) > 0 ? (x) : -(x) )
+
 #define DISABLE_ALL_INTERRUPTS()       (EA = 0)
 #define ENABLE_ALL_INTERRUPTS()        (EA = 1)
 #define NULL                           0
@@ -29,5 +31,10 @@ typedef enum bStatus
   false,
   true,
 } bool;
+
+/*=======
+ * UTILS
+ ========*/
+uint8 num2Char(uint8 x);
 
 #endif

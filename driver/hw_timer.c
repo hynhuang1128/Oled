@@ -8,12 +8,31 @@
  ====================*/
 extern periodic_t periodicTimer;
 extern uartTimer_t uartTimeout;
+rtc_t realTimer =
+{
+  0,
+  0,
+  0,
+  0,
+};
+
+/*===================
+ * INTERNAL FUNCTION
+ ====================*/
+static void timerUpdate()
+{
+  realTimer.realSecs++;
+  
+  realTimer.seconds = realTimer.realSecs % 60;
+  realTimer.minutes = (realTimer.realSecs / 60) % 60;
+  realTimer.hours = (realTimer.realSecs / 3600) % 60;
+}
 
 /*===========================
  * INTERRUPT SERVICE ROUTINE
  ============================*/
 #pragma vector = T3_VECTOR
-__interrupt void T3_ISR(void) 
+__interrupt void T3_ISR(void)
 { 
   IRCON =0;
   T3CC0 = RELOAD_TIMER;
@@ -28,19 +47,51 @@ __interrupt void T3_ISR(void)
   
   /* Periodic timer */
   periodicTimer.timerCount++;
-  if(periodicTimer.timerCount >= periodicTimer.timerMax)
+  if(periodicTimer.timerCount > periodicTimer.timerMax)
   {
-    periodicTimer.timerCount = 0;
+    periodicTimer.timerCount = 1;
+    timerUpdate();
   }
 }
 
 /*=================
  * GLOBAL FUNCTION
  ==================*/
-
+   
 /*
  *
- * @ function name	        - delayMs 
+ * @ function name	        - hw_timerConvert 
+ * 
+ * @ brief			- timer format transfer
+ *
+ * @ date			- 2017.6.20
+ *
+ * @ author			- Eric Huang
+ *
+ * @ param			- secs               
+ *
+ * @ return			- real time counter format data	
+ *
+ */  
+rtc_t hw_timerConvert( uint32 secs )
+{
+  rtc_t t;
+  t.realSecs = secs;
+  t.seconds = secs % 60;
+  t.minutes = (secs / 60) % 60;
+  t.hours = (secs / 3600) % 60;
+  if (secs > 86398)
+  {
+    t.seconds = 59;
+    t.minutes = 59;
+    t.hours = 23;
+  }
+  return t;
+}
+   
+/*
+ *
+ * @ function name	        - hw_delayMs 
  * 
  * @ brief			- Delay ms function 
  *

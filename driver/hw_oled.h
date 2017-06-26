@@ -19,15 +19,29 @@
 #define LCD_SDA         P1_6
 #define LCD_RST         P1_7
 #define LCD_DC          P1_2
-
+#define LCD_CS          P1_0
+   
 /* port initialize definitions */
 // set P1.2 P1.5 P1.6 P1.7 to GPIO
 // set P1.2 P1.5 P1.6 P1.7 output
 #define LCD_INIT_PORT()                 \
 do                                      \
 {                                       \
-  P1SEL &= 0x1b;                        \
-  P1DIR |= 0xe4;                        \
+  P1SEL &= 0x1a;                        \
+  P1DIR |= 0xe5;                        \
+} while(0)
+
+#define SHIFT_PORT_LCD()                \
+do                                      \
+{                                       \
+  P1DIR |= 0xe5;                        \
+} while(0)
+
+#define CLOSE_PORT_LCD()                \
+do                                      \
+{                                       \
+  LCD_CS = 1;                           \
+  P1 |= 0xe0;                           \
 } while(0)
 
 /* OLED definitions */

@@ -170,8 +170,9 @@ void LCD_init(void)
 {  
   LCD_INIT_PORT();
   
-  LCD_SCL=1;
-  LCD_RST=0;
+  LCD_CS = 0;
+  LCD_SCL = 1;
+  LCD_RST = 0;
   delayMs(50);
   LCD_RST = 1;
   

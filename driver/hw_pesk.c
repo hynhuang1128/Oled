@@ -7,6 +7,20 @@
  * EXTERNAL VARIBLES
  ====================*/
 extern peskCommand_t peskCommand;
+extern uint16 sys_evt;
+
+/*===================
+ * INTERNAL FUNCTIONS
+ ====================*/
+
+static uint8 getKey( void )
+{
+  uint8 key = 0;
+  key |= (P0 & 0x03);
+  key |= ((P0 & 0x08) >> 1);
+  key |= ((P1 & 0xe0) >> 2);
+  return key;
+}
 
 /*=================
  * GLOBAL FUNCTIONS
@@ -49,47 +63,8 @@ void hw_keyInit(void)
  */
 void hw_cmdCall(void)
 {
-  uint8 cmd = 0;
-  switch(peskCommand.input)
-  {
-    case KEY_IDLE:
-      cmd = CMD_STOP;
-      break;
-    
-    case KEY_UP:
-      cmd = CMD_UP;
-      break;
-    
-    case KEY_DOWN:
-      cmd = CMD_DOWN;
-      break;
-    
-    case KEY_SET1:
-      cmd = CMD_SET1;
-      break;
-    
-    case KEY_SET2:
-      cmd = CMD_SET2;
-      break;
-    
-    case KEY_SET3:
-      cmd = CMD_SET3;
-      break;
-    
-    case KEY_SET4:
-      cmd = CMD_SET4;
-      break;
-    
-    case KEY_SETTING:
-      cmd = CMD_SETTING;
-      break;
-     
-    default:
-      cmd = CMD_STOP;
-      // Should not get here !
-      break;
-  }
-  P0 = cmd;
+  P0 &= 0x0f;
+  P0 |= peskCommand.output;
 }
 
 /*
@@ -109,32 +84,17 @@ void hw_cmdCall(void)
  */
 void hw_keyPoll(void)
 {
-  volatile uint8 key = KEY_IDLE;
-  static uint8 previous = KEY_IDLE;
+  static uint8 key;
   static uint8 debounceTime;
-  key = P0 & 0xf0;
-  if(key != previous)
-  {
-    previous = key;
-  }
-  else
-  {
-    if(++debounceTime >= DEBOUNCING_TIME / PERIOD_KEY_POLL - 1)
-    {
-      debounceTime = 0;
-      peskCommand.input = key;
-    }
-  }
   
-#if (defined DEBUG) && (defined DEBUG_KEY)
-  uint8 buf[5];
-  buf[0] = '0';
-  buf[1] = 'x';
-  buf[2] = peskCommand.input / 16 % 16 + 0x30;
-  buf[2] = (buf[2] > 9) ? (buf[2]) : buf[2];
-  buf[3] = peskCommand.input % 16 + 0x30;
-  buf[3] = (buf[3] > 9) ? (buf[3]) : buf[3];
-  buf[4] = '\0';
-  LCD_pTinyStr(0, 2, buf);
-#endif
+  SHIFT_PORT_KEY();
+  LCD_CS = 1;
+  
+  key = getKey();
+  
+  if (++debounceTime >= DEBOUNCING_TIME / PERIOD_KEY_POLL - 1)
+  {
+    debounceTime = 0;
+    peskCommand.input = key;
+  }
 }

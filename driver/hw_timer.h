@@ -40,11 +40,19 @@ typedef struct uartTimeout
   bool timedout;
 } uartTimer_t;
 
+typedef struct rtc
+{
+  uint32 realSecs;
+  uint32 seconds;
+  uint32 minutes;
+  uint32 hours;
+} rtc_t;
 /*====================
  * FUNCTION DECLATION
  =====================*/
 void hw_delayMs(uint32 msec);
 void hw_clockInit(void);
 void hw_timer3Cfg(void);
+rtc_t hw_timerConvert(uint32 secs);
 
 #endif

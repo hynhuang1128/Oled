@@ -6,6 +6,7 @@
 #include <ioCC2541.h>
 #include "hw_type.h"
 #include "hw_timer.h"
+#include "main.h"
 
 /*========
  * MACROS

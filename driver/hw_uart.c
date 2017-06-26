@@ -10,6 +10,7 @@ extern uartData_t uartData0;
 extern uartData_t uartData1;
 extern uartTimer_t uartTimeout;
 extern uartConfig_t uart0Config;
+extern uint16 sys_evt;
 
 /*===================
  * INTERNAL FUNCTIONS
