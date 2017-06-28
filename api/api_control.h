@@ -46,7 +46,7 @@ typedef enum unitTypes
 #define SPECIAL_SETTING_MAX     0x01
 #define SPECIAL_SETTING_MIN     0x02
 #define SPECIAL_SETTING_CANCEL  0x03
-#define SPECIAL_UNIT            0x04
+#define SPECIAL_TOGGLE_UNIT     0x04
 
 /* special status */
 #define SETTING_CANCEL_FAILED   0x00
@@ -64,11 +64,16 @@ typedef enum unitTypes
 /* setting signs */
 #define MAX_SUCCESS_SIGN        9999
 #define MIN_SUCCESS_SIGN        0000
-#define CANCEL_SUCCESS_SIGN    5555
+#define CANCEL_SUCCESS_SIGN     5555
 
 /* unit alter time out */
 #define UNIT_TIMEOUT            1500
-   
+
+/* set button released delay time */
+#define STOP_SET_SETTING_TIME   800
+#define STOP_SET_STOP_TIME      1200
+#define STOP_SET_MOVING_TIME    1400
+
 /*=============
  * DECLARATION
  ==============*/

@@ -81,5 +81,6 @@ void displayScene( void );
 void displayScene_1( void );
 void displayScene_2( void );
 void displayScene_3( void );
+void displayScene_4( void );
 
 #endif

@@ -20,8 +20,8 @@
       
 /* Handset status */
 #define KEY_IDLE                        0x3f
-#define KEY_UP                          0x3e
-#define KEY_DOWN                        0x3d
+#define KEY_UP                          0x3d
+#define KEY_DOWN                        0x3e
 #define KEY_SETTING                     0x37
 #define KEY_SET1                        0x3b
 #define KEY_SET2                        0x1f
@@ -30,8 +30,8 @@
 #define KEY_SETTING_AND_DOWN            0x35
    
 /* Handset Commands */
-#define CMD_UP                          0x80
-#define CMD_DOWN                        0x40
+#define CMD_UP                          0x40
+#define CMD_DOWN                        0x80
 #define CMD_STOP                        0x00
 #define CMD_SET1                        0xc0
 #define CMD_SET2                        0x20

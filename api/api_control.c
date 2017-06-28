@@ -9,7 +9,7 @@
 special_t specialMode = 
 {
   SPECIAL_NONE,
-  0,
+  NULL,
 };
 
 unit_t unitType = METRIC;
@@ -149,6 +149,9 @@ static void alterUnitLogic( void )
   {
     unitType = METRIC;
   }
+  
+  specialMode.mode = SPECIAL_TOGGLE_UNIT;
+  specialMode.status = NULL;
 }
 
 /* instant command */
@@ -160,17 +163,17 @@ static void instantCmd(uint8 cmd)
 /* logic for set buttons pressed */
 static void key_setStopLogic( uint8 cmd )
 {
-  if ( timerSet.setStop.timerValue > CONTROL_DELAY_COUNT(800) )
+  if ( timerSet.setStop.timerValue > CONTROL_DELAY_COUNT(STOP_SET_SETTING_TIME) )
   {
     if ( IDLE != peskData.moveDir )
     {
       if ( TIMER_START_FLAG == timerSet.setStop.flag &&
-           timerSet.setStop.timerValue < CONTROL_DELAY_COUNT(1200) )
+           timerSet.setStop.timerValue < CONTROL_DELAY_COUNT(STOP_SET_STOP_TIME) )
       {
         instantCmd(CMD_STOP);
       }
       else if ( TIMER_START_FLAG == timerSet.setStop.flag &&
-                timerSet.setStop.timerValue < CONTROL_DELAY_COUNT(1400) )
+                timerSet.setStop.timerValue < CONTROL_DELAY_COUNT(STOP_SET_MOVING_TIME) )
       {
         instantCmd(cmd);
       }
@@ -250,7 +253,7 @@ static void key_minLogic( void )
       stopTimer(&(timerSet.minHeight));
       instantCmd(CMD_STOP);
       specialMode.mode = SPECIAL_NONE;
-      specialMode.status = 0;
+      specialMode.status = NULL;
     }
   }
 }
@@ -318,7 +321,7 @@ static void key_maxLogic( void )
       stopTimer(&(timerSet.maxHeight));
       instantCmd(CMD_STOP);
       specialMode.mode = SPECIAL_NONE;
-      specialMode.status = 0;
+      specialMode.status = NULL;
     }
   }
 }
@@ -396,7 +399,7 @@ static void key_settingLogic( void )
       stopTimer(&(timerSet.setting));
       instantCmd(CMD_STOP);
       specialMode.mode = SPECIAL_NONE;
-      specialMode.status = 0;
+      specialMode.status = NULL;
     }
   }
 }
@@ -421,7 +424,6 @@ static void keyLogic( void )
 {
   static uint8 previousPressed = KEY_IDLE;
   static uint8 pressedTemp;
-  static uint8 unitAlterCount;
   
   /* barrier the handset input while cancelling the limit */
   if (SPECIAL_SETTING_CANCEL == specialMode.mode)
@@ -467,27 +469,51 @@ static void keyLogic( void )
         break;
         
       case KEY_UP:
-        
+        if (KEY_SET1 == previousPressed)
+        {
+          instantCmd(CMD_SET1);
+        }
+        else if (KEY_SET2 == previousPressed)
+        {
+          instantCmd(CMD_SET2);
+        }
+        else if (KEY_SET3 == previousPressed)
+        {
+          instantCmd(CMD_SET3);
+        }
         break;
         
       case KEY_DOWN:
-        
+        if (KEY_SET1 == previousPressed)
+        {
+          instantCmd(CMD_SET1);
+        }
+        else if (KEY_SET2 == previousPressed)
+        {
+          instantCmd(CMD_SET2);
+        }
+        else if (KEY_SET3 == previousPressed)
+        {
+          instantCmd(CMD_SET3);
+        }
         break;
         
       case KEY_SETTING:
         if (KEY_IDLE == previousPressed)
         {
           startTimer(&(timerSet.setting));
-          startTimer(&(timerSet.unitTimeout));
-          if (unitAlterCount < 5)
-          {
-            unitAlterCount++;
-          }
-          else
-          {
-            alterUnitLogic();
-            unitAlterCount = 0;
-          }
+        }
+        else if (KEY_SET1 == previousPressed)
+        {
+          instantCmd(CMD_SET1);
+        }
+        else if (KEY_SET2 == previousPressed)
+        {
+          instantCmd(CMD_SET2);
+        }
+        else if (KEY_SET3 == previousPressed)
+        {
+          instantCmd(CMD_SET3);
         }
         break;
         
@@ -512,22 +538,19 @@ static void keyLogic( void )
         }
         break;
         
-      case KEY_SETTING_AND_UP:
-        if (KEY_SETTING == previousPressed)
-        {
-          startTimer(&(timerSet.maxHeight));
-        }
-        break;
-        
-      case KEY_SETTING_AND_DOWN:
-        if (KEY_SETTING == previousPressed)
-        {
-          startTimer(&(timerSet.minHeight));
-        }
-        break;
-        
       default:
-        // TODO handle the exceptions
+        if (KEY_SET1 == previousPressed)
+        {
+          instantCmd(CMD_SET1);
+        }
+        else if (KEY_SET2 == previousPressed)
+        {
+          instantCmd(CMD_SET2);
+        }
+        else if (KEY_SET3 == previousPressed)
+        {
+          instantCmd(CMD_SET3);
+        }
         break;
     }
     
@@ -628,28 +651,6 @@ static void keyLogic( void )
           instantCmd(CMD_STOP);
         }
         break;
-        
-      case KEY_SETTING_AND_UP:
-        if (KEY_SETTING == pressedTemp)
-        {
-          key_maxLogic();
-        }
-        else
-        {
-          instantCmd(CMD_STOP);
-        }
-        break;
-        
-      case KEY_SETTING_AND_DOWN:
-        if (KEY_SETTING == pressedTemp)
-        {
-          key_minLogic();
-        }
-        else
-        {
-          instantCmd(CMD_STOP);
-        }
-        break;
           
       default:
         // TODO handle the exceptions
@@ -659,11 +660,6 @@ static void keyLogic( void )
   
   /* timer update */
   internalTimer_update();
-  
-  if (timerSet.unitTimeout.timerValue > CONTROL_DELAY_COUNT(UNIT_TIMEOUT))
-  {
-    unitAlterCount = 0;
-  }
 }
 
 /*===================
