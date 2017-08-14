@@ -20,18 +20,16 @@
       
 /* Handset status */
 #define KEY_IDLE                        0x3f
-#define KEY_UP                          0x3d
-#define KEY_DOWN                        0x3e
+#define KEY_UP                          0x3e
+#define KEY_DOWN                        0x3d
 #define KEY_SETTING                     0x37
 #define KEY_SET1                        0x3b
 #define KEY_SET2                        0x1f
 #define KEY_SET3                        0x2f
-#define KEY_SETTING_AND_UP              0x36
-#define KEY_SETTING_AND_DOWN            0x35
    
 /* Handset Commands */
-#define CMD_UP                          0x40
-#define CMD_DOWN                        0x80
+#define CMD_UP                          0x80
+#define CMD_DOWN                        0x40
 #define CMD_STOP                        0x00
 #define CMD_SET1                        0xc0
 #define CMD_SET2                        0x20
@@ -42,7 +40,7 @@
 #define KEY_SET_MASK                    0x38
    
 /* Debounce time */
-#define DEBOUNCING_TIME                 50
+#define DEBOUNCING_TIME                 100
    
 /* Key initialize */
 #define HW_KEY_INIT() \
@@ -54,14 +52,21 @@ do \
   P1 = 0xe0; \
   P1SEL &= 0x1f; \
   P1DIR &= 0x1f; \
+  P2SEL &= 0xfe; \
+  P2DIR |= 0x01; \
+  P2 &= 0xfe; \
 } while(0)
 
 /* Shift port */
 #define SHIFT_PORT_KEY() \
 do \
 { \
+  LCD_CS = 1; \
   P0DIR |= 0xf4; \
+  P1 |= 0xe0; \
+  P0 |= 0x0b; \
   P1DIR &= 0x1f; \
+  P0DIR &= 0xf4; \
 } while(0)
 
 /*===========
@@ -86,6 +91,7 @@ typedef enum moveDir
 typedef struct peskData
 {
   uint16 height;
+  uint16 code;
   uint16 currentHeight;
   uint16 previousHeight;
   uint8 status;
@@ -134,8 +140,11 @@ typedef struct peskCommand
 /*====================
  * FUNCTION DECLATION
  =====================*/
+
 void hw_keyInit(void);
+
 void hw_keyPoll(void);
+
 void hw_cmdCall(void);
 
 #endif

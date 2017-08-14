@@ -35,6 +35,7 @@ do                                      \
 do                                      \
 {                                       \
   P1DIR |= 0xe5;                        \
+  LCD_CS = 0;                           \
 } while(0)
 
 #define CLOSE_PORT_LCD()                \
@@ -42,6 +43,7 @@ do                                      \
 {                                       \
   LCD_CS = 1;                           \
   P1 |= 0xe0;                           \
+  P1DIR &= 0x1a;                        \
 } while(0)
 
 /* OLED definitions */
@@ -49,10 +51,10 @@ do                                      \
 #define X_LEVEL_H       0x10
 #define X_LEVEL         ( ( X_LEVEL_H & 0x0F ) * 16 + X_LEVEL_L )
 #define MAX_COLUMN      128
-#define MAX_ROW         64
+#define MAX_ROW         8
 #define BRIGHTNESS      0xCF
 #define X_WIDTH         128
-#define Y_WIDTH         64
+#define Y_WIDTH         8
 #define FULL            0xFF
 #define CLEAR           0x00
 
@@ -63,20 +65,40 @@ typedef struct imageInfo
 {
   uint8 x0;
   uint8 y0;
-  uint8 x1;
-  uint8 y1;
-  const uint8 *BMP;
+  uint8 width;
+  uint8 height;
+  __code const uint8 *BMP;
 } image_t;
+
+typedef struct dynamicImageInfo
+{
+  uint8 x0;
+  uint8 y0;
+  uint8 width;
+  uint8 height;
+  const uint8 *BMP;
+} imageDynamic_t;
 
 /*======================
  * FUNCTION DECLARATION
  =======================*/
+
 void LCD_setPos(uint8 x, uint8 y);
+
 void LCD_fill(uint8 bmp_dat);
+
 void LCD_clr(void);
+
 void LCD_init(void);
+
 void LCD_pTinyStr(uint8 x, uint8 y, uint8 *ch);
+
 void LCD_pNormalStr(uint8 x, uint8 y, uint8 *ch);
+
 void LCD_pDraw(image_t* image);
+
+void LCD_pDrawDynamic(imageDynamic_t* image);
+
+void LCD_clrArea(image_t* clr);
 
 #endif

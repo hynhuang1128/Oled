@@ -22,7 +22,7 @@
 #define DISABLE_TIMER3_INT()    (T3IE = 0)
    
 /* Timer 3 */
-#define RELOAD_TIMER            0xf9   
+#define RELOAD_TIMER            0xf9
    
 /*=============
  * TYPE DEFINES

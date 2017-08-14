@@ -4,6 +4,7 @@
 /*========
  * MACROS
  =========*/
+
 #define ABS(x)                          ( (x) > 0 ? (x) : -(x) )
 
 #define DISABLE_ALL_INTERRUPTS()       (EA = 0)
@@ -13,6 +14,7 @@
 /*=============
  * TYPE DEFINES
  ==============*/
+
 typedef enum
 {
   FAILED,
@@ -35,6 +37,8 @@ typedef enum bStatus
 /*=======
  * UTILS
  ========*/
+
 uint8 num2Char(uint8 x);
 
+void printDebugMsg(uint32 msg, uint8 pos);
 #endif

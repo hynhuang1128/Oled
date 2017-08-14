@@ -75,11 +75,12 @@ __interrupt void UART0_ISR(void)
   URX0IF = 0;
   *(uartData0.recvBuf + uartData0.recvCount) = U0DBUF;
   uartData0.recvCount++;
+  
   if(uartData0.recvCount >= UART0_RX_SIZE)
   {
     uartData0.recvComplete = true;
     uartData0.recvCount = 0;
-    DISABLE_RECEIVE_INT(0);
+    //DISABLE_RECEIVE_INT(0);
   }
 }
 
@@ -89,6 +90,7 @@ __interrupt void UART1_ISR(void)
   URX1IF = 0;
   *(uartData1.recvBuf + uartData1.recvCount) = U1DBUF;
   uartData1.recvCount++;
+  
   if(uartData1.recvCount >= UART1_RX_SIZE)
   {
     uartData1.recvComplete = true;
@@ -196,13 +198,6 @@ void hw_uartPoll(void)
   // TODO if the port 1 is defined, prepare the data buffer
   uint8 dataBuf[UART0_RX_SIZE];
   
-  if(uartTimeout.timedout)
-  {
-    hw_uartClearBuf(port);
-    uartTimeout.timedout = false;
-    uartTimeout.timeoutCount = 0;
-  }
-  
   if(uartData.recvComplete)
   {
     for(int i = 0; i < UART0_RX_SIZE; i++)
@@ -211,6 +206,14 @@ void hw_uartPoll(void)
     }
     uart0Config.cbs(port, dataBuf);
   }
+  
+  if(uartTimeout.timedout)
+  {
+    hw_uartClearBuf(port);
+    uartTimeout.timedout = false;
+    uartTimeout.timeoutCount = 0;
+  }
+  
   port ? ENABLE_RECEIVE_INT(1) : ENABLE_RECEIVE_INT(0);
 }
 

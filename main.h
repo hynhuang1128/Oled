@@ -13,26 +13,26 @@
 #include "api_nv.h"
 #include "api_disp.h"
 #include "api_control.h"
+#include "api_menu.h"
    
 /*==========
  *  MACROS
  ===========*/
-/* QRcode image coordinate */
-#define QRCODE_X_BEGIN          0
-#define QRCODE_Y_BEGIN          0
-#define QRCODE_X_END            64
-#define QRCODE_Y_END            8
 
 /* QRcode image coordinate */
-#define IMAGE_X_BEGIN           0
+#define IMAGE_X_BEGIN           8
 #define IMAGE_Y_BEGIN           2
-#define IMAGE_X_END             128
-#define IMAGE_Y_END             6
+#define IMAGE_WIDTH             116
+#define IMAGE_HEIGHT            4
    
 /* poll time period(ms) */
 #define PERIOD_UART0_POLL       11
-#define PERIOD_DISPLAY          109
+#define PERIOD_DISPLAY          79
 #define PERIOD_KEY_POLL         25
+#define PERIOD_DATAHANDLER      31
+#define PERIOD_GETDIR           91
+#define PERIOD_MENU_POLL        100
+#define INIT_TIME_ELEMENT       50
    
 /* Cache Prefetch Control */
 #define PREFETCH_ENABLE()       \
@@ -47,6 +47,9 @@ do                              \
   FCTL = 0x04;                  \
 } while(0)
 
+/* Set event macros */
+#define SET_EVENT_ACTIVE(x)     (sys_event |= (x))
+
 /*===========
  * CONSTANTS
  ============*/
@@ -55,11 +58,15 @@ do                              \
 #define CONTROL_DELAY_COUNT(x)  ((x) / PERIOD_KEY_POLL)
 
 /* event id */
-#define SYS_UART_EVT                    0x0001  
-#define SYS_KEY_EVT                     0x0002
+#define SYS_KEY_CHANGE_EVT              0x0001
+#define SYS_DISP_CHANGE_EVT             0x0002
 #define SYS_DISP_EVT                    0x0004
 #define SYS_CMD_EVT                     0x0008
 
+/* unit non-volatile storage */
+#define UNIT_NV_ID                      0x0000
+#define UNIT_NV_ID_LEN                  1
+   
 /*=============
  * TYPE DEFINES
  ==============*/

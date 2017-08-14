@@ -2,6 +2,10 @@
  * INCLUDES
  ===========*/
 #include "hw_type.h"
+   
+#ifdef DEBUG
+#include "hw_oled.h"
+#endif
 
 /*=======
  * UTILS
@@ -80,3 +84,24 @@ uint8 num2Char(uint8 x)
   }
   return ret;
 }
+
+#ifdef DEBUG
+void printDebugMsg(uint32 msg, uint8 pos)
+{
+  uint8 buf[11];
+  
+  buf[0] = '0';
+  buf[1] = 'x';
+  buf[2] = num2Char((uint8)(msg >> 28) & 0x0f);
+  buf[3] = num2Char((uint8)(msg >> 24) & 0x0f);
+  buf[4] = num2Char((uint8)(msg >> 20) & 0x0f);
+  buf[5] = num2Char((uint8)(msg >> 16) & 0x0f);
+  buf[6] = num2Char((uint8)(msg >> 12) & 0x0f);
+  buf[7] = num2Char((uint8)(msg >> 8) & 0x0f);
+  buf[8] = num2Char((uint8)(msg >> 4) & 0x0f);
+  buf[9] = num2Char((uint8)(msg) & 0x0f);
+  buf[10] = '\0';
+  
+  LCD_pNormalStr(0, pos, buf);
+}
+#endif 

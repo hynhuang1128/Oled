@@ -20,7 +20,7 @@
 #define NV_END_ADDR             (NV_START_PG * FLASH_PAGE_SIZE / FLASH_WORD_SIZE + FLASH_WORD_COUNT)
 
    
-#define NV_DATA_COUNT           75
+#define NV_DATA_COUNT           20
    
 /*==========
  * TYPEDEFS

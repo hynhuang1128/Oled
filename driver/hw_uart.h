@@ -16,7 +16,7 @@
 #define UART0_RX_SIZE           4
 #define UART1_RX_SIZE           4
 
-#define UART0_TIMEOUT           8
+#define UART0_TIMEOUT           10
 
 /*===========
  * ENUM TYPES

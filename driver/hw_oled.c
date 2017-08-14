@@ -23,7 +23,7 @@ static void writeData(uint8 dat)
 {
   uint8 temp = 0;
   LCD_DC = 1;
-  for(int i = 0; i < 8; i++)
+  for (int i = 0; i < 8; i++)
   {
     LCD_SCL = 0;
     temp = dat & 0x80;
@@ -44,7 +44,7 @@ static void writeCmd(uint8 cmd)
 { 
   uint8 temp = 0;
   LCD_DC = 0;
-  for(int i = 0; i < 8; i++)
+  for (int i = 0; i < 8; i++)
   { 
     LCD_SCL = 0; 
     
@@ -110,12 +110,12 @@ void LCD_setPos(uint8 x, uint8 y)
  */
 void LCD_fill(uint8 bmp_dat) 
 {
-  for(uint8 y = 0; y < 8; y++)
+  for (uint8 y = 0; y < Y_WIDTH; y++)
   {
     writeCmd(0xb0 + y);
     writeCmd(0x01);
     writeCmd(0x10);
-    for(uint8 x = 0; x < X_WIDTH; x++)
+    for (uint8 x = 0; x < X_WIDTH; x++)
     {
       writeData(bmp_dat);
     }
@@ -139,12 +139,12 @@ void LCD_fill(uint8 bmp_dat)
  */
 void LCD_clr(void)
 {  
-  for(int y = 0; y < 8; y++)
+  for (int y = 0; y < 8; y++)
   {
     writeCmd(0xb0 + y);
     writeCmd(0x01);
     writeCmd(0x10); 
-    for(int x = 0; x < X_WIDTH; x++)
+    for (int x = 0; x < X_WIDTH; x++)
     {
       writeData(0);
     }
@@ -238,13 +238,13 @@ void LCD_pTinyStr(uint8 x, uint8 y, uint8 *ch)
   while (ch[j] != '\0')
   {    
     c = ch[j] - 32;
-    if(x > 126)
+    if (x > 126)
     {
       x = 0;
       y++;
     }
     LCD_setPos(x, y);    
-    for(int i = 0; i < 6; i++)
+    for (int i = 0; i < 6; i++)
     {     
       writeData( F6x8[c][i] );
     }  
@@ -282,18 +282,18 @@ void LCD_pNormalStr(uint8 x, uint8 y, uint8 *ch)
   while (ch[j] != '\0')
   {    
     c = ch[j] - 32;
-    if(x > 120)
+    if (x > 120)
     {
       x = 0;
       y++;
     }
     LCD_setPos(x, y);    
-    for(int i = 0; i < 8; i++)
+    for (int i = 0; i < 8; i++)
     {     
       writeData( F8X16[c * 16 + i] );
     }
     LCD_setPos(x, y + 1);
-    for(int i = 0; i < 8; i++)
+    for (int i = 0; i < 8; i++)
     {     
       writeData( F8X16[c * 16 + i + 8] );
     }
@@ -306,7 +306,7 @@ void LCD_pNormalStr(uint8 x, uint8 y, uint8 *ch)
  *
  * @ function name	        - LCD_pDraw 
  * 
- * @ brief			- Print the 16x8 character 
+ * @ brief			- Draw my favorite picture :)
  *
  * @ date			- 2017.5.26
  *
@@ -334,12 +334,91 @@ void LCD_pDraw(image_t* image)
 {     
   uint32 j = 0;
   
-  for(uint8 y = image->y0; y < image->y1; y++)
+  for (uint8 y = image->y0; y < (image->y0 + image->height); y++)
   {
     LCD_setPos(image->x0, y);
-    for(uint8 x = image->x0; x < image->x1; x++)
+    for (uint8 x = image->x0; x < (image->x0 + image->width); x++)
     {
       writeData(image->BMP[j++]);            
+    }
+  }
+} 
+
+/*
+ *
+ * @ function name	        - LCD_pDrawDynamic
+ * 
+ * @ brief			- Draw my favorite dynamic picture :)
+ *
+ * @ date			- 2017.5.26
+ *
+ * @ author			- Eric Huang
+ *
+ * @ param			- x0            uint8
+ *                                              the start x coordinate
+ *
+ * @ param			- y0            uint8
+ *                                              the start y coordinate
+ *
+ * @ param			- x1            uint8
+ *                                              the end x coordinate
+ *
+ * @ param			- y1            uint8
+ *                                              the end y coordinate
+ *
+ * @ param			- BMP           uint8 
+ *                                              the picture
+ *
+ * @ return			- none	
+ *
+ */
+void LCD_pDrawDynamic(imageDynamic_t* image)
+{     
+  uint32 j = 0;
+  
+  for (uint8 y = image->y0; y < (image->y0 + image->height); y++)
+  {
+    LCD_setPos(image->x0, y);
+    for (uint8 x = image->x0; x < (image->x0 + image->width); x++)
+    {
+      writeData(image->BMP[j++]);            
+    }
+  }
+} 
+
+/*
+ *
+ * @ function name	        - LCD_clrArea
+ * 
+ * @ brief			- Clear the specific area
+ *
+ * @ date			- 2017.5.26
+ *
+ * @ author			- Eric Huang
+ *
+ * @ param			- x0            uint8
+ *                                              the start x coordinate
+ *
+ * @ param			- y0            uint8
+ *                                              the start y coordinate
+ *
+ * @ param			- width         uint8
+ *                                              the end x coordinate
+ *
+ * @ param			- height        uint8
+ *                                              the end y coordinate
+ *
+ * @ return			- none	
+ *
+ */
+void LCD_clrArea(image_t* clr)
+{     
+  for (uint8 y = clr->y0; y < (clr->y0 + clr->height); y++)
+  {
+    LCD_setPos(clr->x0, y);
+    for (uint8 x = clr->x0; x < (clr->x0 + clr->width); x++)
+    {
+      writeData(0x00);
     }
   }
 } 

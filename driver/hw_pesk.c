@@ -86,13 +86,21 @@ void hw_keyPoll(void)
 {
   static uint8 key;
   static uint8 debounceTime;
-  
-  SHIFT_PORT_KEY();
-  LCD_CS = 1;
+  static uint8 keyPrevious;
   
   key = getKey();
   
-  if (++debounceTime >= DEBOUNCING_TIME / PERIOD_KEY_POLL - 1)
+  if (key != keyPrevious)
+  {
+    debounceTime = 0;
+    keyPrevious = key;
+  }
+  else
+  {
+    debounceTime++;
+  }
+  
+  if (debounceTime >= DEBOUNCING_TIME / PERIOD_KEY_POLL - 1)
   {
     debounceTime = 0;
     peskCommand.input = key;

@@ -51,7 +51,6 @@ static bStatus nv_erase(uint8 pg)
  *****************************************************************************/
 bStatus api_nv_init(void)
 {
-  
   return SUCCESS;
 }
 
@@ -78,14 +77,7 @@ bStatus api_nv_write(uint8 id, uint8 *srcData, uint8 len)
     hw_flashRead(NV_START_PG, i * FLASH_WORD_SIZE, (uint8 *)&nvData[i].word, sizeof(nvData_t));
   }
   
-  if(nv_erase(NV_START_PG))
-  {
-    LCD_pTinyStr(0, 1, "erase complete!");
-  }
-  else
-  {
-    LCD_pTinyStr(0, 1, "erase failed!");
-  }
+  nv_erase(NV_START_PG);
   
   for (int i = id; i < id + len; i++)
   {
@@ -103,22 +95,6 @@ bStatus api_nv_write(uint8 id, uint8 *srcData, uint8 len)
     
     if(temp != nvData[i].word)
     {
-  
-  // test
-  {
-    uint8 buf[9];
-    buf[7] = ((uint8)(temp) & 0x0f) + 0x30;
-    buf[6] = ((uint8)(temp >> 4) & 0x0f) + 0x30;
-    buf[5] = ((uint8)(temp >> 8) & 0x0f) + 0x30;
-    buf[4] = ((uint8)(temp >> 12) & 0x0f) + 0x30;
-    buf[3] = ((uint8)(temp >> 16) & 0x0f) + 0x30;
-    buf[2] = ((uint8)(temp >> 20) & 0x0f) + 0x30;
-    buf[1] = ((uint8)(temp >> 24) & 0x0f) + 0x30;
-    buf[0] = ((uint8)(temp >> 28) & 0x0f) + 0x30;
-    buf[8] = '\0';
-    LCD_pTinyStr(0, 6, buf);
-  }
-  //
       return FAILED;
     }
   }
